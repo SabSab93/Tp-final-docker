@@ -75,3 +75,98 @@ docker run --rm -p 1992:3000 sabsab38/back-dev
 
 ## Mise en production
 
+
+### Front
+
+1. J'ai créé un repo sur git mon .git est dans le projet TP-FINAL-DOCKER
+2. J'ai forké le back et le front afin de pouvoir push dans le main
+3. Dans le front j'ai utilisé VERSEL 
+    - en recuperant le depot front : https://github.com/SabSab93/client-livres
+    ![screen Vercel](screen_vercel.png)
+    - creeant un new project à partir du repo git : 
+    https://vercel.com/sabristis-projects/tp-final-docker
+
+### Back
+1. Dans docker desktop je push l'image dans dockerhub
+        ![screen_push_image](screen_push_image.png)
+        Ou bien je peux taper la commande suivante : 
+```bash
+docker login -u sabsab38
+docker push sabsab38/back-dev
+```
+        Je n'ai pas mis de tag par defaul c'est latest
+
+Voici le repo créé dans DockerHub : 
+![alt text](image-1.png)
+
+2. Avec l'image du DockerHub on peux creer une render à partir de cette image : sabsab38/back-dev
+
+![alt text](image-2.png)
+
+
+3. Le back est disponible : https://back-dev-dpwo.onrender.com/
+4. Les livres : https://back-dev-dpwo.onrender.com/books
+
+### Automatiser avec git
+1. Creer un repertoire .github/workflows
+2. Creer un fichier docker.yaml
+
+```bash
+name: Docker
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/demo-test:github-actions .
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/demo-test:github-actions
+      - name: Render Build Hook
+        run: |
+          echo "Pinging Render build hook…"
+          curl -X POST "${{ secrets.RENDER_BUILD_HOOK_URL }}"
+```
+
+3. Creation de variable dans git 
+DOCKERHUB_TOKEN : on recupere dans le setting de dockerHub
+DOCKERHUB_USERNAME : c'est notre user name de dockerHub : sabsab38
+RENDER_BUILD_HOOK_URL : on le retrouve dans le projet render partie Hoock
+![alt text](image-3.png)
+
+4. A chaque push on va pouvoir build / push et deployer dans le back et le front, cela evite de taper les commandes à la mano
+
+
+
+## Docker compose
+
+### Docker-compose.yaml 
+
+```bash
+services:
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    ports:
+      - "1992:3000"        
+    env_file:
+      - ./back/.env        
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      API_URL: "https://back-dev-dpwo.onrender.com/"
+    depends_on:
+      - back            
+```
