@@ -139,7 +139,7 @@ jobs:
 DOCKERHUB_TOKEN : on recupere dans le setting de dockerHub
 DOCKERHUB_USERNAME : c'est notre user name de dockerHub : sabsab38
 RENDER_BUILD_HOOK_URL : on le retrouve dans le projet render partie Hoock
-![alt text](image-3.png)
+![alt text](image-4.png)
 
 4. A chaque push on va pouvoir build / push et deployer dans le back et le front, cela evite de taper les commandes à la mano
 
