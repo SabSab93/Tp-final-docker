@@ -170,3 +170,13 @@ services:
     depends_on:
       - back            
 ```
+### Docker compose commande 
+
+Docker compose permet de décrire l'architecture en microservices de manière simple et efficace
+
+Pour le lancer en mode détaché : 
+
+```bash
+docker compose up -d  
+docker-compose ps                # pour le voir
+```
